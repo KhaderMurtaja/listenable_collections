@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:functional_listener/functional_listener.dart';
+
 import '../lib/src/map_notifier.dart';
 
 void main() {
@@ -81,7 +83,10 @@ void main() {
 
     group('when notifyIfEqual is false', () {
       setUp(() {
-        mapNotifier = MapNotifier(notifyIfEqual: false);
+        mapNotifier = MapNotifier(
+          // notifyIfEqual: false,
+          notificationMode: CustomNotifierMode.normal,
+        );
         listenerCallCount = 0;
         mapNotifier.addListener(() {
           listenerCallCount++;
@@ -166,7 +171,9 @@ void main() {
 
     group('when notifyIfEqual is true', () {
       setUp(() {
-        mapNotifier = MapNotifier(notifyIfEqual: true);
+        mapNotifier = MapNotifier(
+            // notifyIfEqual: true,
+            notificationMode: CustomNotifierMode.always);
         listenerCallCount = 0;
         mapNotifier.addListener(() {
           listenerCallCount++;
@@ -296,7 +303,8 @@ void main() {
       setUp(() {
         mapNotifier = MapNotifier(
           customEquality: customEquality,
-          notifyIfEqual: true,
+          // notifyIfEqual: true,
+          notificationMode: CustomNotifierMode.always,
         );
         result = {};
         mapNotifier.addListener(() {

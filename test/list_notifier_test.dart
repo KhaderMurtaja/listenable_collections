@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:functional_listener/functional_listener.dart';
 
 import '../lib/src/list_notifier.dart';
 
@@ -175,9 +176,7 @@ void main() {
 
     test("The listener isn't notified if the value is equal", () {
       final ListNotifier list = ListNotifier(
-        data: [1, 2, 3],
-        notifyIfEqual: false,
-      );
+          data: [1, 2, 3], notificationMode: CustomNotifierMode.normal);
 
       list.addListener(() {
         result = [...list.value];
@@ -191,7 +190,7 @@ void main() {
     test("customEuqality works correctly", () {
       final ListNotifier list = ListNotifier(
         data: [1, 2, 3],
-        notifyIfEqual: false,
+        notificationMode: CustomNotifierMode.normal,
         customEquality: (index, value) => value >= 3,
       );
 

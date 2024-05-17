@@ -17,23 +17,27 @@ class ListNotifier<T> extends DelegatingList<T>
   ///
   /// Creates a new listenable List
   /// [data] optional list that should be used as initial value
-  /// if  [notifyIfEqual]  is `false` `ListNotifier` will compare if a value
+  /// if  [notifierMode]  is [normal] `ListNotifier` will compare if a value
   ///  passed is equal to the existing value.
   /// like `list[5]=4` if the content at index 4 is equal to 4 and only call
   /// `notifyListeners` if they are not equal. To prevent users from wondering
   /// why their UI doesn't update if they haven't overritten the equality operator
-  /// the default is `true`.
-  /// Alternatively you can pass in a [customEquality] function that is then used instead
-  /// of `==`
-  ListNotifier({List<T>? data, bool notifyIfEqual = true, this.customEquality})
-      : _notifyIfEqual = notifyIfEqual,
+  /// the default is [always].
+  /// [customEquality] can be used to set your own criteria for comparing when choosing
+  /// [normal] as [notifierMode].
+  ListNotifier({
+    List<T>? data,
+    CustomNotifierMode notificationMode = CustomNotifierMode.always,
+    this.customEquality,
+  })  : _notificationMode = notificationMode,
         super(data ?? []);
 
-  final CustomNotifierMode _notificationMode = CustomNotifierMode.normal;
+  final CustomNotifierMode _notificationMode;
   final bool Function(T x, T y)? customEquality;
 
   /// if this is `true` no listener will be notified if the list changes.
   bool _inTransaction = false;
+  bool _hasChanged = false;
 
   /// Starts a transaction that allows to make multiple changes to the List
   /// with only one notification at the end.
@@ -43,25 +47,43 @@ class ListNotifier<T> extends DelegatingList<T>
   }
 
   /// Ends a transaction
-  void endTransAction() {
+  void endTransAction({bool notify = true}) {
     assert(_inTransaction, 'No active transaction in ListNotifier');
     _inTransaction = false;
-    _notify();
+    _notify(endofTransaction: true);
   }
 
   /// swaps elements on [index1] with [index2]
   void swap(int index1, int index2) {
-    startTransAction();
-    final temp = this[index1];
-    this[index1] = this[index2];
-    this[index2] = temp;
-    endTransAction();
+    final temp1 = this[index1];
+    final temp2 = this[index2];
+    if (customEquality?.call(temp1, temp2) ?? temp1 == temp2) {
+      return;
+    }
+    // we use super here to avoid triggering the notify function
+    super[index1] = temp2;
+    super[index2] = temp1;
+    _hasChanged = true;
+    _notify();
   }
 
-  void _notify() {
-    if (!_inTransaction) {
-      super.notifyListeners();
+  void _notify({bool endofTransaction = false}) {
+    if (_inTransaction && !endofTransaction) {
+      return;
     }
+    switch (_notificationMode) {
+      case CustomNotifierMode.normal:
+        if (_hasChanged) {
+          notifyListeners();
+        }
+        break;
+      case CustomNotifierMode.always:
+        notifyListeners();
+        break;
+      case CustomNotifierMode.manual:
+        break;
+    }
+    _hasChanged = false;
   }
 
   /// If needed you can notifiy all listeners manually
@@ -76,6 +98,7 @@ class ListNotifier<T> extends DelegatingList<T>
 
   @override
   set length(int value) {
+    _hasChanged = length != value;
     super.length = value;
     _notify();
   }
@@ -85,36 +108,49 @@ class ListNotifier<T> extends DelegatingList<T>
 
   @override
   void operator []=(int index, T value) {
-    final areEqual = customEquality != null
-        ? customEquality!(super[index], value)
-        : super[index] == value;
+    final areEqual =
+        customEquality?.call(super[index], value) ?? super[index] == value;
     super[index] = value;
 
-    if ((_notifyIfEqual && customEquality == null) || !areEqual) {
-      _notify();
-    }
+    _hasChanged = !areEqual;
+    _notify();
   }
 
   @override
   void add(T value) {
     super.add(value);
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void addAll(Iterable<T> iterable) {
     super.addAll(iterable);
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void clear() {
+    _hasChanged = isNotEmpty;
     super.clear();
     _notify();
   }
 
   @override
   void fillRange(int start, int end, [T? fillValue]) {
+    if (null is! T && fillValue == null) {
+      throw ArgumentError.value(fillValue, 'fillValue', 'must not be null');
+    }
+    if (_notificationMode == CustomNotifierMode.normal) {
+      /// we only need to check if the value is equal if we are in normal mode
+      if (fillValue == null) {
+        _hasChanged = sublist(start, end).any((element) => element != null);
+      } else {
+        _hasChanged = sublist(start, end).any((element) =>
+            customEquality?.call(element, fillValue) ?? element != fillValue);
+      }
+    }
     super.fillRange(start, end, fillValue);
     _notify();
   }
@@ -122,26 +158,30 @@ class ListNotifier<T> extends DelegatingList<T>
   @override
   void insert(int index, T element) {
     super.insert(index, element);
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void insertAll(int index, Iterable<T> iterable) {
     super.insertAll(index, iterable);
+    _hasChanged = true;
     _notify();
   }
 
   @override
   bool remove(Object? value) {
-    final val = super.remove(value);
+    final wasRemoved = super.remove(value);
+    _hasChanged = wasRemoved;
     _notify();
-    return val;
+    return wasRemoved;
   }
 
   @override
   T removeAt(int index) {
     final val = super.removeAt(index);
     _notify();
+    _hasChanged = true;
     return val;
   }
 
@@ -149,54 +189,84 @@ class ListNotifier<T> extends DelegatingList<T>
   T removeLast() {
     final val = super.removeLast();
     _notify();
+    _hasChanged = true;
     return val;
   }
 
   @override
   void removeRange(int start, int end) {
     super.removeRange(start, end);
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void removeWhere(bool Function(T) test) {
-    super.removeWhere(test);
+    super.removeWhere((element) {
+      final result = test(element);
+      if (result) {
+        _hasChanged = true;
+      }
+      return result;
+    });
     _notify();
   }
 
   @override
   void replaceRange(int start, int end, Iterable<T> iterable) {
+    if (_notificationMode == CustomNotifierMode.normal) {
+      /// we only need to check if the value is equal if we are in normal mode
+      _hasChanged = IterableEquality().equals(sublist(start, end), iterable);
+    }
     super.replaceRange(start, end, iterable);
     _notify();
   }
 
   @override
   void retainWhere(bool Function(T) test) {
-    super.retainWhere(test);
+    super.retainWhere((element) {
+      final result = test(element);
+      if (!result) {
+        _hasChanged = true;
+      }
+      return result;
+    });
     _notify();
   }
 
   @override
   void setAll(int index, Iterable<T> iterable) {
     super.setAll(index, iterable);
+
+    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void setRange(int start, int end, Iterable<T> iterable, [int skipCount = 0]) {
     super.setRange(start, end, iterable, skipCount);
+
+    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void shuffle([math.Random? random]) {
     super.shuffle(random);
+
+    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    _hasChanged = true;
     _notify();
   }
 
   @override
   void sort([int Function(T, T)? compare]) {
     super.sort(compare);
+
+    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    _hasChanged = true;
     _notify();
   }
 }

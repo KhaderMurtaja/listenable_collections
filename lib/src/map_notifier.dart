@@ -68,7 +68,7 @@ class MapNotifier<K, V> extends DelegatingMap<K, V>
   void endTransAction() {
     assert(_inTransaction, 'No active transaction in a MapNotifier');
     _inTransaction = false;
-    _notify(true);
+    _notify(endofTransaction: true);
   }
 
   @override
@@ -122,7 +122,7 @@ class MapNotifier<K, V> extends DelegatingMap<K, V>
     return true;
   }
 
-  void _notify([bool endofTransaction = false]) {
+  void _notify({bool endofTransaction = false}) {
     if (_inTransaction && !endofTransaction) {
       return;
     }
