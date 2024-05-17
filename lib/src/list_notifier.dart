@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show ChangeNotifier, ValueListenable;
+import 'package:functional_listener/functional_listener.dart';
 
 /// A List that behaves like `ValueNotifier` if its data changes.
 /// it does not compare the elements on bulk operations
@@ -28,7 +29,7 @@ class ListNotifier<T> extends DelegatingList<T>
       : _notifyIfEqual = notifyIfEqual,
         super(data ?? []);
 
-  final bool _notifyIfEqual;
+  final CustomNotifierMode _notificationMode = CustomNotifierMode.normal;
   final bool Function(T x, T y)? customEquality;
 
   /// if this is `true` no listener will be notified if the list changes.
