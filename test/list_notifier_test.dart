@@ -176,7 +176,9 @@ void main() {
 
     test("The listener isn't notified if the value is equal", () {
       final ListNotifier list = ListNotifier(
-          data: [1, 2, 3], notificationMode: CustomNotifierMode.normal);
+        data: [1, 2, 3],
+        notificationMode: CustomNotifierMode.normal,
+      );
 
       list.addListener(() {
         result = [...list.value];
@@ -209,5 +211,81 @@ void main() {
       // custom equality.
       expect(result, [1, 2, 3]);
     });
+
+    test(
+        "When the notificationMode is equal to CustomNotifierMode.manual,"
+        "the list won't notify if the list.notifyListeners();"
+        "is NOT called", () {
+      final ListNotifier list = ListNotifier(
+        data: [1, 2, 3],
+        notificationMode: CustomNotifierMode.manual,
+      );
+
+      list.addListener(() {
+        result = [...list.value];
+      });
+
+      list.add(4);
+
+      expect(result, null);
+    });
+
+    test(
+        "When the notificationMode is equal to CustomNotifierMode.manual,"
+        "the list will notify ONLY if the list.notifyListeners();"
+        "is called", () {
+      final ListNotifier list = ListNotifier(
+        data: [1, 2, 3],
+        notificationMode: CustomNotifierMode.manual,
+      );
+
+      list.addListener(() {
+        result = [...list.value];
+      });
+
+      list.add(4);
+
+      list.notifyListeners();
+
+      expect(result, [1, 2, 3, 4]);
+    });
+
+    test(
+      "When the notificationMode is equal to CustomNotifierMode.always,"
+      "the list will notify the listeners on every change",
+      () {
+        final ListNotifier list = ListNotifier(
+          data: [1, 2, 3],
+          notificationMode: CustomNotifierMode.always,
+        );
+
+        list.addListener(() {
+          result = [...list.value];
+        });
+
+        list.add(4);
+
+        expect(result, [1, 2, 3, 4]);
+      },
+    );
+
+    test(
+      "When the notificationMode is equal to CustomNotifierMode.always,"
+      "the list will notify the listeners always, even if the value is equal",
+      () {
+        final ListNotifier list = ListNotifier(
+          data: [1, 2, 3],
+          notificationMode: CustomNotifierMode.always,
+        );
+
+        list.addListener(() {
+          result = [...list.value];
+        });
+
+        list[0] = 1;
+
+        expect(result, [1, 2, 3]);
+      },
+    );
   });
 }
