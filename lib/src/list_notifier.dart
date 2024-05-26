@@ -5,12 +5,23 @@ import 'package:flutter/foundation.dart' show ChangeNotifier, ValueListenable;
 import 'package:functional_listener/functional_listener.dart';
 
 /// A List that behaves like `ValueNotifier` if its data changes.
-/// it does not compare the elements on bulk operations
-/// If you set [notifyIfEqual] to `false` it will compare if a value passed value
-///  passed is equal to the existing value.
-/// like `list[5]=4` if the content at index 4 is equal to 4 and only call
+/// It does not compare the elements on bulk operations
+///
+/// If you set [notificationMode] to [normal] `ListNotifier` will compare if a
+/// value passed is equal to the existing value.
+/// Like `list[5]=4` if the content at index 4 is equal to 4 and only call
 /// `notifyListeners` if they are not equal.
-/// To allow atomic changes `ListNotifier` supports a single level of transactions
+///
+/// If you set [notificationMode] to [manual] you have to call `notifyListeners`
+/// manually to notify all listeners.
+/// Like `list.notifyListeners();` if you want to notify all listeners.
+///
+/// If you set [notificationMode] to [always] `ListNotifier` will always notify
+/// all listeners if the list changes.
+/// Like `list[5]=4` will always notify all listeners.
+///
+/// To allow atomic changes `ListNotifier` supports a single level of
+/// transactions
 class ListNotifier<T> extends DelegatingList<T>
     with ChangeNotifier
     implements ValueListenable<List<T>> {
