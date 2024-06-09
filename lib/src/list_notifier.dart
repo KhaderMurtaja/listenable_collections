@@ -231,7 +231,7 @@ class ListNotifier<T> extends DelegatingList<T>
   void replaceRange(int start, int end, Iterable<T> iterable) {
     if (_notificationMode == CustomNotifierMode.normal) {
       /// we only need to check if the value is equal if we are in normal mode
-      _hasChanged = IterableEquality().equals(sublist(start, end), iterable);
+      _hasChanged = IterableEquality<T>().equals(sublist(start, end), iterable);
     }
     super.replaceRange(start, end, iterable);
     _notify();
