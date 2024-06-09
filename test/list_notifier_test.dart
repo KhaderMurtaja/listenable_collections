@@ -5,7 +5,7 @@ import '../lib/src/list_notifier.dart';
 
 void main() {
   group("Tests for the ListNotifier's methods", () {
-    late ListNotifier list;
+    late ListNotifier<int> list;
     List result = [];
 
     setUp(() {
@@ -48,7 +48,7 @@ void main() {
 
       list.clear();
 
-      expect(result, []);
+      expect(result, <int>[]);
     });
 
     test('Listeners get notified on fillRange', () {
