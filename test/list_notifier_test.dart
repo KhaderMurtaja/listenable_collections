@@ -168,14 +168,14 @@ void main() {
   });
 
   group("Tests for the ListNotifier's equality", () {
-    List? result;
+    List<int>? result;
 
     setUp(() {
       result = null;
     });
 
     test("The listener isn't notified if the value is equal", () {
-      final ListNotifier list = ListNotifier(
+      final list = ListNotifier(
         data: [1, 2, 3],
         notificationMode: CustomNotifierMode.normal,
       );
@@ -190,7 +190,7 @@ void main() {
     });
 
     test('customEquality works correctly', () {
-      final ListNotifier list = ListNotifier(
+      final list = ListNotifier(
         data: [1, 2, 3],
         notificationMode: CustomNotifierMode.normal,
         customEquality: (index, value) => value >= 3,
@@ -216,7 +216,7 @@ void main() {
         'When the notificationMode is equal to CustomNotifierMode.manual,'
         "the list won't notify if the list.notifyListeners();"
         'is NOT called', () {
-      final ListNotifier list = ListNotifier(
+      final list = ListNotifier(
         data: [1, 2, 3],
         notificationMode: CustomNotifierMode.manual,
       );
@@ -234,7 +234,7 @@ void main() {
         'When the notificationMode is equal to CustomNotifierMode.manual,'
         'the list will notify ONLY if the list.notifyListeners();'
         'is called', () {
-      final ListNotifier list = ListNotifier(
+      final list = ListNotifier(
         data: [1, 2, 3],
         notificationMode: CustomNotifierMode.manual,
       );
@@ -254,7 +254,7 @@ void main() {
       'When the notificationMode is equal to CustomNotifierMode.always,'
       'the list will notify the listeners on every change',
       () {
-        final ListNotifier list = ListNotifier(
+        final list = ListNotifier(
           data: [1, 2, 3],
           notificationMode: CustomNotifierMode.always,
         );
@@ -273,7 +273,7 @@ void main() {
       'When the notificationMode is equal to CustomNotifierMode.always,'
       'the list will notify the listeners always, even if the value is equal',
       () {
-        final ListNotifier list = ListNotifier(
+        final list = ListNotifier(
           data: [1, 2, 3],
           notificationMode: CustomNotifierMode.always,
         );
