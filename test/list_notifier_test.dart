@@ -6,7 +6,7 @@ import '../lib/src/list_notifier.dart';
 void main() {
   group("Tests for the ListNotifier's methods", () {
     late ListNotifier<int> list;
-    List result = [];
+    final result = <int>[];
 
     setUp(() {
       list = ListNotifier(data: [1, 2, 3]);
