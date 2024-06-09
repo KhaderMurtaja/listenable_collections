@@ -102,6 +102,7 @@ class ListNotifier<T> extends DelegatingList<T>
   }
 
   /// If needed you can notify all listeners manually
+  @override
   void notifyListeners() => super.notifyListeners();
 
   /// returns an unmodifiable view on the lists data.
