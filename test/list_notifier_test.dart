@@ -221,11 +221,11 @@ void main() {
         notificationMode: CustomNotifierMode.manual,
       );
 
-      list.addListener(() {
-        result = [...list.value];
-      });
-
-      list.add(4);
+      list
+        ..addListener(() {
+          result = [...list.value];
+        })
+        ..add(4);
 
       expect(result, null);
     });
@@ -239,13 +239,12 @@ void main() {
         notificationMode: CustomNotifierMode.manual,
       );
 
-      list.addListener(() {
-        result = [...list.value];
-      });
-
-      list.add(4);
-
-      list.notifyListeners();
+      list
+        ..addListener(() {
+          result = [...list.value];
+        })
+        ..add(4)
+        ..notifyListeners();
 
       expect(result, [1, 2, 3, 4]);
     });
@@ -258,11 +257,11 @@ void main() {
           data: [1, 2, 3],
         );
 
-        list.addListener(() {
-          result = [...list.value];
-        });
-
-        list.add(4);
+        list
+          ..addListener(() {
+            result = [...list.value];
+          })
+          ..add(4);
 
         expect(result, [1, 2, 3, 4]);
       },
