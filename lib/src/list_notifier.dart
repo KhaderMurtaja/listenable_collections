@@ -5,23 +5,24 @@ import 'package:flutter/foundation.dart' show ChangeNotifier, ValueListenable;
 import 'package:functional_listener/functional_listener.dart';
 
 /// A List that behaves like `ValueNotifier` if its data changes.
-/// It does not compare the elements on bulk operations
+/// It does not compare the elements on bulk operations like `addAll` or
+/// `replaceRange` but will notify listeners if the list changes.
 ///
-/// If you set [notificationMode] to [normal] `ListNotifier` will compare if a
-/// value passed is equal to the existing value.
-/// Like `list[5]=4` if the content at index 4 is equal to 4 and only call
-/// `notifyListeners` if they are not equal.
+/// If you want to compare the elements you can use the
+/// `CustomNotifierMode.normal` mode and provide a custom equality function.
 ///
-/// If you set [notificationMode] to [manual] you have to call `notifyListeners`
-/// manually to notify all listeners.
-/// Like `list.notifyListeners();` if you want to notify all listeners.
+/// If you want to prevent the list from notifying listeners you can use the
+/// `CustomNotifierMode.manual` mode.
 ///
-/// If you set [notificationMode] to [always] `ListNotifier` will always notify
-/// all listeners if the list changes.
-/// Like `list[5]=4` will always notify all listeners.
+/// If you want to notify listeners on every change you can use the
+/// `CustomNotifierMode.always` mode.
 ///
-/// To allow atomic changes `ListNotifier` supports a single level of
-/// transactions
+/// The functions that will always notify listeners unless [notificationMode]
+/// is set to [manual] are:
+/// - [setAll]
+/// - [setRange]
+/// - [shuffle]
+/// - [sort]
 class ListNotifier<T> extends DelegatingList<T>
     with ChangeNotifier
     implements ValueListenable<List<T>> {
@@ -57,14 +58,17 @@ class ListNotifier<T> extends DelegatingList<T>
     _inTransaction = true;
   }
 
-  /// Ends a transaction
+  /// Ends a transaction and notifies all listeners if [notify] is `true`.
   void endTransAction({bool notify = true}) {
     assert(_inTransaction, 'No active transaction in ListNotifier');
     _inTransaction = false;
-    _notify(endofTransaction: true);
+    _notify(endOfTransaction: true);
   }
 
-  /// swaps elements on [index1] with [index2]
+  /// swaps elements on [index1] with [index2] and notifies listeners if the
+  /// values are different.
+  /// If [customEquality] is set it will be used to compare the values.
+  /// If [customEquality] is NOT set the `==` operator will be used.
   void swap(int index1, int index2) {
     final temp1 = this[index1];
     final temp2 = this[index2];
@@ -78,8 +82,8 @@ class ListNotifier<T> extends DelegatingList<T>
     _notify();
   }
 
-  void _notify({bool endofTransaction = false}) {
-    if (_inTransaction && !endofTransaction) {
+  void _notify({bool endOfTransaction = false}) {
+    if (_inTransaction && !endOfTransaction) {
       return;
     }
     switch (_notificationMode) {
