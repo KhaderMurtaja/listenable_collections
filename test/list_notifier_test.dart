@@ -256,7 +256,6 @@ void main() {
       () {
         final list = ListNotifier(
           data: [1, 2, 3],
-          notificationMode: CustomNotifierMode.always,
         );
 
         list.addListener(() {
@@ -275,7 +274,6 @@ void main() {
       () {
         final list = ListNotifier(
           data: [1, 2, 3],
-          notificationMode: CustomNotifierMode.always,
         );
 
         list.addListener(() {
