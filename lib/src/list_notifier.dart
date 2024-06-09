@@ -33,10 +33,10 @@ class ListNotifier<T> extends DelegatingList<T>
   ///  passed is equal to the existing value.
   /// like `list[5]=4` if the content at index 4 is equal to 4 and only call
   /// `notifyListeners` if they are not equal. To prevent users from wondering
-  /// why their UI doesn't update if they haven't overritten the equality operator
-  /// the default is [always].
-  /// [customEquality] can be used to set your own criteria for comparing when choosing
-  /// [normal] as [notifierMode].
+  /// why their UI doesn't update if they haven't overritten the equality
+  /// operator the default is [always].
+  /// [customEquality] can be used to set your own criteria for comparing when
+  /// choosing [normal] as [notifierMode].
   ListNotifier({
     List<T>? data,
     CustomNotifierMode notificationMode = CustomNotifierMode.always,
@@ -101,7 +101,7 @@ class ListNotifier<T> extends DelegatingList<T>
     _hasChanged = false;
   }
 
-  /// If needed you can notifiy all listeners manually
+  /// If needed you can notify all listeners manually
   void notifyListeners() => super.notifyListeners();
 
   /// returns an unmodifiable view on the lists data.
@@ -253,7 +253,8 @@ class ListNotifier<T> extends DelegatingList<T>
   void setAll(int index, Iterable<T> iterable) {
     super.setAll(index, iterable);
 
-    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    /// This function will always notify listeners unless [notificationMode] is
+    /// set to [manual]
     _hasChanged = true;
     _notify();
   }
@@ -262,7 +263,8 @@ class ListNotifier<T> extends DelegatingList<T>
   void setRange(int start, int end, Iterable<T> iterable, [int skipCount = 0]) {
     super.setRange(start, end, iterable, skipCount);
 
-    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    /// This function will always notify listeners unless [notificationMode] is
+    /// set to [manual]
     _hasChanged = true;
     _notify();
   }
@@ -271,7 +273,8 @@ class ListNotifier<T> extends DelegatingList<T>
   void shuffle([math.Random? random]) {
     super.shuffle(random);
 
-    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    /// This function will always notify listeners unless [notificationMode] is
+    /// set to [manual]
     _hasChanged = true;
     _notify();
   }
@@ -280,7 +283,8 @@ class ListNotifier<T> extends DelegatingList<T>
   void sort([int Function(T, T)? compare]) {
     super.sort(compare);
 
-    /// This function will always notify listeners unless [notificationMode] is set to [manual]
+    /// This function will always notify listeners unless [notificationMode] is
+    /// set to [manual]
     _hasChanged = true;
     _notify();
   }
