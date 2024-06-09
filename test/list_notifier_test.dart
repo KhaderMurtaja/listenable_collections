@@ -189,7 +189,7 @@ void main() {
       expect(result, null);
     });
 
-    test('customEuqality works correctly', () {
+    test('customEquality works correctly', () {
       final ListNotifier list = ListNotifier(
         data: [1, 2, 3],
         notificationMode: CustomNotifierMode.normal,
@@ -207,7 +207,7 @@ void main() {
       list[0] = 1;
 
       // if customEquality wasn't implemented this would not call
-      // the listeners, it doea because 1 < 3, as defined in
+      // the listeners, it does because 1 < 3, as defined in
       // custom equality.
       expect(result, [1, 2, 3]);
     });
