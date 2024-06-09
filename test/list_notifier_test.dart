@@ -161,7 +161,7 @@ void main() {
     test('Listeners get notified on sort', () {
       buildListener();
 
-      list.sort((value1, value2) => -(value1.compareTo(value2)));
+      list.sort((value1, value2) => -value1.compareTo(value2));
 
       expect(result, [3, 2, 1]);
     });
