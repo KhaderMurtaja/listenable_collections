@@ -38,7 +38,7 @@ class ListNotifier<T> extends DelegatingList<T>
   ///  passed is equal to the existing value.
   /// like `list[5]=4` if the content at index 4 is equal to 4 and only call
   /// `notifyListeners` if they are not equal. To prevent users from wondering
-  /// why their UI doesn't update if they haven't overwritten the equality
+  /// why their UI doesn't update if they haven't overridden the equality
   /// operator the default is [always].
   /// [customEquality] can be used to set your own criteria for comparing when
   /// choosing [normal] as [notifierMode].
