@@ -4,25 +4,30 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart' show ChangeNotifier, ValueListenable;
 import 'package:functional_listener/functional_listener.dart';
 
-/// A List that behaves like `ValueNotifier` if its data changes.
-/// It does not compare the elements on bulk operations like `addAll` or
-/// `replaceRange` but will notify listeners if the list changes.
+/// `ListNotifier` is a List that behaves similarly to `ValueNotifier` when its
+/// data changes.
+/// It does not compare the elements during bulk operations.
 ///
-/// If you want to compare the elements you can use the
-/// `CustomNotifierMode.normal` mode and provide a custom equality function.
+/// If [notifyIfEqual] is set to `false`, `ListNotifier` will compare the new
+/// value with the existing value.
 ///
-/// If you want to prevent the list from notifying listeners you can use the
-/// `CustomNotifierMode.manual` mode.
+/// For example, in the case of `list[5]=4`, `ListNotifier` checks if the content
+/// at index 5 is equal to 4.
+/// It will only call `notifyListeners` if the values are not equal, thus
+/// avoiding unnecessary notifications.
 ///
-/// If you want to notify listeners on every change you can use the
-/// `CustomNotifierMode.always` mode.
+/// `ListNotifier` supports a single level of transactions to allow atomic
+/// changes. This means you can make multiple changes to the list and have them
+/// all be treated as a single operation, which can be useful for performance
+/// reasons.
 ///
-/// The functions that will always notify listeners unless [notificationMode]
-/// is set to [manual] are:
-/// - [setAll]
-/// - [setRange]
-/// - [shuffle]
-/// - [sort]
+/// There are certain functions that will always notify listeners without
+/// comparing the existing value unless [notificationMode] is set to [manual].
+/// These functions include:
+/// - [setAll] Replaces multiple elements in the list with new values.
+/// - [setRange] Replaces a range of elements in the list with new values.
+/// - [shuffle] Randomly rearranges the elements of the list.
+/// - [sort] Sorts the elements of the list in order.
 class ListNotifier<T> extends DelegatingList<T>
     with ChangeNotifier
     implements ValueListenable<List<T>> {
