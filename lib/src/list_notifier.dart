@@ -8,13 +8,24 @@ import 'package:functional_listener/functional_listener.dart';
 /// data changes.
 /// It does not compare the elements during bulk operations.
 ///
-/// If [notifyIfEqual] is set to `false`, `ListNotifier` will compare the new
+/// If [notificationMode] is set to `normal`, `ListNotifier` will compare the new
 /// value with the existing value.
 ///
 /// For example, in the case of `list[5]=4`, `ListNotifier` checks if the content
 /// at index 5 is equal to 4.
 /// It will only call `notifyListeners` if the values are not equal, thus
 /// avoiding unnecessary notifications.
+///
+/// If [notificationMode] is set to `always` which is the default, `ListNotifier`
+/// will always notify listeners when the list changes.
+/// For example, in the case of `list[5]=4`, `ListNotifier` will always notify
+/// listeners, regardless of the values being equal.
+///
+/// If [notificationMode] is set to `manual`, `ListNotifier` will not notify
+/// listeners when the list changes.
+/// For example, in the case of `list[5]=4`, `ListNotifier` will not notify
+/// listeners.
+/// You can manually notify listeners by calling `notifyListeners`.
 ///
 /// `ListNotifier` supports a single level of transactions to allow atomic
 /// changes. This means you can make multiple changes to the list and have them
@@ -31,12 +42,11 @@ import 'package:functional_listener/functional_listener.dart';
 class ListNotifier<T> extends DelegatingList<T>
     with ChangeNotifier
     implements ValueListenable<List<T>> {
-  ///
   /// Creates a new listenable List
   /// [data] optional list that should be used as initial value
   /// if  [notifierMode]  is [normal] `ListNotifier` will compare if a value
-  ///  passed is equal to the existing value.
-  /// like `list[5]=4` if the content at index 4 is equal to 4 and only call
+  /// passed is equal to the existing value.
+  /// Like `list[5]=4` if the content at index 4 is equal to 4 and only call
   /// `notifyListeners` if they are not equal. To prevent users from wondering
   /// why their UI doesn't update if they haven't overridden the equality
   /// operator the default is [always].
