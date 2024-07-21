@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:functional_listener/functional_listener.dart';
-
-import '../lib/src/list_notifier.dart';
+import 'package:listenable_collections/src/list_notifier.dart';
 
 void main() {
   group("Tests for the ListNotifier's methods", () {
@@ -167,26 +166,11 @@ void main() {
     });
   });
 
-  group("Tests for the ListNotifier's equality", () {
+  group("Tests for the ListNotifier's customEquality", () {
     List<int>? result;
 
     setUp(() {
       result = null;
-    });
-
-    test("The listener isn't notified if the value is equal", () {
-      final list = ListNotifier(
-        data: [1, 2, 3],
-        notificationMode: CustomNotifierMode.normal,
-      );
-
-      list.addListener(() {
-        result = [...list.value];
-      });
-
-      list[0] = 1;
-
-      expect(result, null);
     });
 
     test('customEquality works correctly', () {
@@ -210,6 +194,14 @@ void main() {
       // the listeners, it does because 1 < 3, as defined in
       // custom equality.
       expect(result, [1, 2, 3]);
+    });
+  });
+
+  group("Tests for the ListNotifier's notificationMode", () {
+    List<int>? result;
+
+    setUp(() {
+      result = null;
     });
 
     test(
