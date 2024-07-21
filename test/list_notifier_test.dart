@@ -195,6 +195,28 @@ void main() {
       // custom equality.
       expect(result, [1, 2, 3]);
     });
+
+    test('customEquality handles null values correctly', () {
+      final list = ListNotifier<int?>(
+        data: [1, null, 3],
+        notificationMode: CustomNotifierMode.normal,
+        customEquality: (x, y) => x == y,
+      );
+
+      List<int?>? result;
+
+      list.addListener(() {
+        result = [...list.value];
+      });
+
+      // Attempt to change a null value to another null, should not notify
+      list[1] = null;
+      expect(result, null);
+
+      // Attempt to change a null value to a non-null, should notify
+      list[1] = 2;
+      expect(result, [1, 2, 3]);
+    });
   });
 
   group("Tests for the ListNotifier's notificationMode", () {
