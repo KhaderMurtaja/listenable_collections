@@ -284,5 +284,41 @@ void main() {
         expect(result, [1, 2, 3]);
       },
     );
+
+    test(
+        'When the notificationMode is equal to CustomNotifierMode.noraml,'
+        'the list notifies only if the value changes', () {
+      final list = ListNotifier(
+        data: [1, 2, 4],
+        notificationMode: CustomNotifierMode.normal,
+      );
+
+      list.addListener(() {
+        result = [...list.value];
+      });
+
+      list[2] = 4;
+      expect(result, null);
+
+      list[2] = 3;
+      expect(result, [1, 2, 3]);
+    });
+
+    test(
+        'When the notificationMode is equal to CustomNotifierMode.noraml,'
+        'the list will NOT notify when the value changes to the same value',
+        () {
+      final list = ListNotifier(
+        data: [1, 2, 3],
+        notificationMode: CustomNotifierMode.normal,
+      );
+
+      list.addListener(() {
+        result = [...list.value];
+      });
+
+      list[2] = 3;
+      expect(result, null);
+    });
   });
 }
